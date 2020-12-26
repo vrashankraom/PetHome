@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Add Pet-details for Existing PO</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+</head>
+ <style>
+input[type=text], input[type=password] {
+  width: 100%;
+  padding: 15px;
+  margin: 5px 0 22px 0;
+  display: inline-block;
+  border: none;
+  background: #f1f1f1;
+}
+
+input[type=text]:focus, input[type=password]:focus {
+  background-color: #ddd;
+  outline: none;
+}
+
+hr {
+  border: 1px solid #f1f1f1;
+  margin-bottom: 25px;
+}
+
+/* Set a style for all buttons */
+button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  opacity: 0.9;
+}
+
+button:hover {
+  opacity:1;
+}
+
+
+/* Float cancel and signup buttons and add an equal width */
+.signupbtn {
+  float: left;
+  width: 30%;
+
+}
+
+
+/* Add padding to container elements */
+.container {
+  padding: 16px;
+}
+
+/* Clear floats */
+.clearfix::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+/* Change styles for cancel button and signup button on extra small screens */
+@media screen and (max-width: 300px) {
+  .cancelbtn, .signupbtn {
+     width: 100%;
+  }
+}
+</style>
+
+<body>
+
+<nav class="navbar navbar-inverse ">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/">PetHome</a>
+    </div>
+    <ul class="nav navbar-nav navbar-right">
+      <li class="active"><a href="/shopoptions">Shop-Options</a></li>
+      <li class="active"><a href="/getallpetowners">Go Back</a></li>
+    </ul>
+  </div>
+</nav>
+
+<form action="/addpetonly/{{id}}" method="post" style="border:1px solid #ccc">
+  <div class="container">
+    <h1>Pet-Details of Existing Pet-Owner</h1>
+    <p>Please fill in this form to add Pet-Details.</p>
+    <hr>
+
+    <label for="pname"><b>Pet-Name</b></label>
+    <input type="text" placeholder="Enter Pet-Name..." name="pname" required>
+
+    <label for="pcategory"><b>Pet Category</b></label>
+    <input type="text" placeholder="Enter the Pet Category.." name="pcategory" required>
+
+    <label for="pbreed"><b>Pet Breed</b></label>
+    <input type="text" placeholder="Enter the Pet Breed.." name="pbreed" required>
+
+    <label for="pyob"><b>Pet-Year-of-Birth</b></label>
+    <input type="text" placeholder="Enter the year of birth of the Pet" name="pyob" required>
+
+    <div class="clearfix">
+      <button type="submit" class="signupbtn">Submit</button>
+    </div>
+  </div>
+</form>
+
+
+
+</body>
+</html>

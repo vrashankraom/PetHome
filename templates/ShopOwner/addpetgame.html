@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Add Pet-Game</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+</head>
+ <style>
+  body{
+  background:url("https://i.pinimg.com/originals/85/e1/c0/85e1c0161e9c0d4fe926550d7c6b26e0.jpg") no-repeat  fixed;
+  background-size:cover;
+
+  }
+  form.example input[type=text] {
+  padding: 10px;
+  font-size: 17px;
+  border: 1px solid grey;
+  float: left;
+  width: 80%;
+  background: #f1f1f1;
+}
+
+form.example button {
+  float: right;
+  width: 20%;
+  padding: 10px;
+  background: #2196F3;
+  color: white;
+  font-size: 17px;
+  border: 1px solid grey;
+  border-left: none;
+  cursor: pointer;
+}
+
+form.example button:hover {
+  background: #0b7dda;
+}
+
+form.example::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+</style>
+
+<body>
+
+<nav class="navbar navbar-inverse ">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/">PetHome</a>
+    </div>
+    <ul class="nav navbar-nav navbar-right">
+      <li class="active"><a href="/shopoptions">Shop-Options</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div style="margin-top:12%">
+    <center>
+          <p style="color:white;font-size:2.7vw;margin-top:-1%" class="lead">
+           Please Enter a New Pet-Game.
+          </p>
+          <form class="example" action="/addpetgame" method="post" style="margin:auto;max-width:400px">
+  <input type="text" placeholder="Enter the New Pet-Game Category..." name="game" required>
+  <button type="submit"><i class="fa fa-arrow-right"></i></button>
+</form>
+        <div style="background-color:white;max-width:400px;margin-bottom:2%;border-radius:1%">
+            <u><b><h3 style="margin-bottom:3%">List of All the Game Categories</h3></b></u>
+            {% for g in allgames %}
+               <form class="example" action="/deletepetgame/{{g[0]}}" method="post">
+            <h4 style="margin-bottom:-9%;margin-right:13%;margin-top:8%">{{g[1]}}</h4>
+              <button style="background-color:red;margin-right:3%" type="submit"><i class="fa fa-window-close"></i></button>
+              </form>
+            <hr style="height:0.1px;border:none;color:#333;background-color:#333;">
+            {% endfor %}
+        </div>
+ </center>
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Pet Activity details</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<style>
+         table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+button {
+  margin-bottom:2%;
+  width: 10%;
+  padding: 2px;
+  background: #008000;
+  color:white;
+
+  font-size: 25px;
+  cursor: pointer;
+}
+button:hover {
+  background: #6f116f;
+  color:white;
+}
+</style>
+<body>
+<nav class="navbar navbar-inverse navbar-dark bg-dark ">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/">PetHome</a>
+    </div>
+    <ul class="nav navbar-right " >
+      <li ><a class="navbar-brand" href="/">Home</a></li>
+    </ul>
+  </div>
+</nav>
+{% if not data %}
+<center><h2>Please wait, Data Not Added yet!</h2></center>
+{% else %}
+<table style="width:99%;margin-left:auto;margin-right:auto">
+    <td><b><h3>Date(y/m/d)</h3></b></td>
+     <td><b><h3>Day</h3></b></td>
+    <td><b><h3>Time(in 24h)</h3></b></td>
+    <td><b><h3>Activity Type</h3></b></td>
+    <td><b><h3>Activity Category/Food</h3></b></td>
+    <td><b><h3>Duration(in mins)</h3></b></td>
+    <td><b><h3>Health/Treatment</h3></b></td>
+
+{% for row in data %}
+<tr>
+{% for cell in row %}
+<td><h5>{{cell}}</h5></td>
+{% endfor %}
+</tr>
+{% endfor %}
+</table>
+{% endif %}
+<center style="margin-top:2%"><a href="/shopoptions"><button type="submit">Back</button>
+</a></center>
+</body>
+</html>

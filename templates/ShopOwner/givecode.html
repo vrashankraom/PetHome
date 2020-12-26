@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="utf-8">
+      <title>Give Code to Pet-Owner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+
+</head>
+<body>
+<nav class="navbar navbar-inverse navbar-dark bg-dark ">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/">PetHome</a>
+    </div>
+    <ul class="nav navbar-right " >
+      <li ><a class="navbar-brand" href="/shopoptions">Shop-Options</a></li>
+    </ul>
+  </div>
+</nav>
+<center style="margin-top:2%;">
+    <b><h3 style="font-size:6vh">Give this Code to the Pet-Owner</h3></b>
+    <h6 style="font-size:4vh">(Code to get Pet-Activity Details)</h6>
+    <b><h1 style="color:darkgreen;font-size:10vh">{{Code}}</h1></b>
+    <div style="margin-top:3%">
+     <b><p>Total Basic Cost - (Rs.{{singleday}}/day) * {{days}} = Rs.{{basiccost}}</p></b>
+    <b><p>Total Food Cost - (Rs.50/meal) * {{FoodCount}} = Rs.{{FoodCost}}</p></b>
+     <b><p>Total HairCut Cost - (Rs.100/haircut) * {{HairCutCount}} = Rs.{{HairCutCost}}</p></b>
+     <b><p>Total NailCut Cost - (Rs.50/nailcut) * {{NailCutCount}} = Rs.{{NailCutCost}}</p></b>
+     <b><p>Total Bathing Cost - (Rs.30/bath) * {{BathCount}} = Rs.{{BathCost}}</p></b>
+     <b><p>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</p></b>
+     <b><p>Total Boarding Cost - Food + HairCut + NailCut + Bathing = Rs.{{TotalCost}}</p></b>
+     <b><h3 style="margin-bottom:2%;">Extra charges for Health Treatments if any, will be taken later!</h3></b>
+    </div>
+</center>
+
+</body>
+</html>

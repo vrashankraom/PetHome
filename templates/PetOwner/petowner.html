@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Pet Owner Login</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+</head>
+ <style>
+  body{
+  background:url("https://i.pinimg.com/originals/85/e1/c0/85e1c0161e9c0d4fe926550d7c6b26e0.jpg") no-repeat  fixed;
+  background-size:cover;
+
+  }
+  form.example input[type=text] {
+  padding: 10px;
+  font-size: 17px;
+  border: 1px solid grey;
+  float: left;
+  width: 80%;
+  background: #f1f1f1;
+}
+
+form.example button {
+  float: left;
+  width: 20%;
+  padding: 10px;
+  background: #2196F3;
+  color: white;
+  font-size: 17px;
+  border: 1px solid grey;
+  border-left: none;
+  cursor: pointer;
+}
+
+form.example button:hover {
+  background: #0b7dda;
+}
+
+form.example::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+.alert {
+  padding: 0px;
+  background-color: #2196F3;
+  color: white;
+  width:60%;
+}
+
+.closebtn {
+  margin-left: 13px;
+  margin-right: 0.5%;
+  color: white;
+  font-weight: bold;
+  float: right;
+  font-size: 22px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.closebtn:hover {
+  color: black;
+}
+
+</style>
+
+<body>
+
+<nav class="navbar navbar-inverse ">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/">PetHome</a>
+    </div>
+    <ul class="nav navbar-nav navbar-right">
+      <li class="active"><a href="/">Home</a></li>
+
+      <li><a href="#">Contact Us</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+    <center>
+        {% block content %}
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for msg in messages %}
+                        <div class="alert">
+                        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                            <strong><h3 style="margin-bottom:2%">{{msg}}</h3></strong>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+<div style="margin-top:12%">
+          <p style="color:white;font-size:2.7vw;margin-top:-1%" class="lead">
+           Please Enter the Code given by us.
+          </p>
+
+          <form class="example" action="/petowner"  method="post" style="margin:auto;max-width:400px">
+  <input type="text" placeholder="Enter the code..." name="id" required>
+  <button type="submit"><i class="fa fa-search"></i></button>
+</form>
+        {% endblock %}
+
+</div>
+ </center>
+
+</body>
+</html>

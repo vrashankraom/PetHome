@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Get Pet-Boarding Details</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        table {
+        margin-top:2%;
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: center;
+  padding: 5px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+button {
+  margin-bottom:2%;
+  width: 20%;
+  padding: 2px;
+  background: #008000;
+  color:white;
+
+  font-size: 25px;
+  cursor: pointer;
+}
+button:hover {
+  background: #6f116f;
+  color:white;
+}
+:: after {
+  content: "";
+  clear: both;
+  display: table;
+}
+h3{
+color:#006600
+}
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-inverse navbar-dark bg-dark ">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/">PetHome</a>
+    </div>
+    <ul class="nav navbar-right " >
+      <li ><a class="navbar-brand" href="/shopoptions">Shop-Options</a></li>
+    </ul>
+  </div>
+</nav>
+<center><u><h3 style="">PET-DETAILS</h3></u></center>
+<table style="width:97%;margin-left:auto;margin-right:auto">
+    <td><b><h4>Pet-Id</h4></b></td>
+    <td><b><h4>Reg-Date</h4></b></td>
+     <td><b><h4>Pet-Name</h4></b></td>
+    <td><b><h4>Pet-Category</h4></b></td>
+    <td><b><h4>Pet-Breed</h4></b></td>
+    <td><b><h4>Age (in yrs)</h4></b></td>
+{% for row in petdata %}
+<tr>
+{% for cell in row %}
+<td><h5>{{cell}}</h5></td>
+{% endfor %}
+</tr>
+{% endfor %}
+</table>
+
+<center><u><h3 style="margin-top:5%;" >BOARDING-DETAILS</h3></u></center>
+<table style="width:97%;margin-left:auto;margin-right:auto">
+  <td><b><h4>From Date</h4></b></td>
+     <td><b><h4>Till Date</h4></b></td>
+    <td><b><h4>Basic Cost</h4></b></td>
+    <td><b><h4>Total Cost</h4></b></td>
+    <td><b><h4>Health Conditions</h4></b></td>
+    <td><b><h4>Food Preferences</h4></b></td>
+{% for row in boarddata %}
+<tr>
+{% for cell in row %}
+<td><h5>{{cell}}</h5></td>
+{% endfor %}
+</tr>
+{% endfor %}
+</table>
+
+<table style="width:97%;margin-left:auto;margin-right:auto">
+  <td><b><h4>Nail-Cut-Count (per/week)</h4></b></td>
+     <td><b><h4>Hair-Cut-Count (per/week)</h4></b></td>
+    <td><b><h4>Bath-Count (per/week)</h4></b></td>
+    <td><b><h4>Food-Count (per/day)</h4></b></td>
+{% for row in countdata %}
+<tr>
+{% for cell in row %}
+<td><h5>{{cell}}</h5></td>
+{% endfor %}
+</tr>
+{% endfor %}
+</table>
+
+<center><u><h3 style="margin-top:5%;">PET-OWNER-DETAILS</h3></u></center>
+<table style="width:97%;margin-bottom:3%;margin-left:auto;margin-right:auto">
+    <td><b><h4>Pet-Owner-Name</h4></b></td>
+     <td><b><h4>Phone No.</h4></b></td>
+    <td><b><h4>Email Id</h4></b></td>
+    <td><b><h4>Home Address</h4></b></td>
+{% for row in petownerdata %}
+<tr>
+{% for cell in row %}
+<td><h5>{{cell}}</h5></td>
+{% endfor %}
+</tr>
+{% endfor %}
+</table>
+<center><a href="/getmypadetails/{{id}}"><button type="submit">Activity Details</button>
+</a></center>
+</body>
+</html>
