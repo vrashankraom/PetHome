@@ -90,20 +90,20 @@ button:hover {
     <h1>Add an Activity</h1>
     <p>Please fill in this form to add a Pet-Activity.</p>
     <hr>
-      <label for="activitytype"><b>Choose the type of Activity</b></label>
+      <label for="activitycategory"><b>Choose the type of Activity</b></label>
       <br>
-    <SELECT name="activitytype">
-	    <option value="Eating Food">Eating Food</option>
-        <option value="Grooming">Grooming</option>
-	    <option value="Playing Games">Playing Games</option>
+    <SELECT name="activitycategory">
+	    <option value="EATING FOOD">EATING FOOD</option>
+        <option value="GROOMING">GROOMING</option>
+	    <option value="PLAYING GAMES">PLAYING GAMES</option>
     </SELECT>
     <br>
       <br>
     <label for="activities"><b>Choose an Activity</b></label>
       <br>
-    <SELECT name="pactivities">
+    <SELECT name="pactivity">
     {% for activity in activities %}
-	    <option type="text" value="{{activity}}">{{activity}}</option>
+	    <option type="text" value="{{activity[0]}}">{{activity[0]}}</option>
     {% endfor %}
     </SELECT>
       <br>

@@ -10,7 +10,7 @@ app.secret_key = "pet-boarding"
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'vrashank'
-app.config['MYSQL_DB'] = 'pet-boarding-system'
+app.config['MYSQL_DB'] = 'pet_boarding_system'
 
 
 mysql = MySQL(app)
@@ -137,6 +137,7 @@ def addpetdetails():
     else:
         return render_template("index.html")
 
+"""
 @app.route("/addpetfood" ,methods=["GET","POST"])
 def addpetfood():
     cookies = request.cookies
@@ -215,6 +216,92 @@ def addpetgroom():
             return render_template("ShopOwner/addpetgroom.html",allgrooms=allgrooms)
     else:
         return render_template("index.html")
+"""
+@app.route("/addpetfood" ,methods=["GET","POST"])
+def addpetfood():
+    cookies = request.cookies
+    email = cookies.get("email")
+    password = cookies.get("password")
+    if request.method=="GET":
+        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
+            cur = mysql.connection.cursor()
+            pacategory='EATING FOOD'
+            cur.execute("select pac_id,pa_type from pet_activitycategory where pa_category=%s",[pacategory])
+            allfood = cur.fetchall()
+            mysql.connection.commit()
+            cur.close()
+            return render_template("ShopOwner/addpetfood.html",allfood=allfood)
+    if request.method=="POST":
+        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
+            pacategory='EATING FOOD'
+            food = request.form.get("food")
+            cur = mysql.connection.cursor()
+            cur.execute("Insert into pet_activitycategory(pa_category,pa_type) values(%s,%s)", (pacategory,food))
+            cur.execute("select pac_id,pa_type from pet_activitycategory where pa_category=%s",[pacategory])
+            allfood = cur.fetchall()
+            print(allfood)
+            mysql.connection.commit()
+            cur.close()
+            return render_template("ShopOwner/addpetfood.html",allfood=allfood)
+    else:
+        return render_template("index.html")
+
+@app.route("/addpetgame" ,methods=["GET","POST"])
+def addpetgame():
+    cookies = request.cookies
+    email = cookies.get("email")
+    password = cookies.get("password")
+    if request.method=="GET":
+        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
+            cur = mysql.connection.cursor()
+            pacategory = 'PLAYING GAMES'
+            cur.execute("select pac_id,pa_type from pet_activitycategory where pa_category=%s", [pacategory])
+            allgames = cur.fetchall()
+            mysql.connection.commit()
+            cur.close()
+            return render_template("ShopOwner/addpetgame.html",allgames=allgames)
+    if request.method=="POST":
+        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
+            pacategory = 'PLAYING GAMES'
+            cur=mysql.connection.cursor()
+            game = request.form.get("game")
+            cur.execute("Insert into pet_activitycategory(pa_category,pa_type) values(%s,%s)", (pacategory,game))
+            cur.execute("select pac_id,pa_type from pet_activitycategory where pa_category=%s", [pacategory])
+            allgames = cur.fetchall()
+            mysql.connection.commit()
+            cur.close()
+            return render_template("ShopOwner/addpetgame.html",allgames=allgames)
+    else:
+        return render_template("index.html")
+
+@app.route("/addpetgroom" ,methods=["GET","POST"])
+def addpetgroom():
+    cookies = request.cookies
+    email = cookies.get("email")
+    password = cookies.get("password")
+    if request.method=="GET":
+        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
+            cur = mysql.connection.cursor()
+            pacategory = 'GROOMING'
+            cur.execute("select pac_id,pa_type from pet_activitycategory where pa_category=%s", [pacategory])
+            allgrooms = cur.fetchall()
+            mysql.connection.commit()
+            cur.close()
+            return render_template("ShopOwner/addpetgroom.html",allgrooms=allgrooms)
+    if request.method=="POST":
+        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
+            pacategory = 'GROOMING'
+            cur=mysql.connection.cursor()
+            groom = request.form.get("groom")
+            cur.execute("Insert into pet_activitycategory(pa_category,pa_type) values(%s,%s)", (pacategory,groom))
+            cur.execute("select pac_id,pa_type from pet_activitycategory where pa_category=%s", [pacategory])
+            allgrooms = cur.fetchall()
+            mysql.connection.commit()
+            cur.close()
+            return render_template("ShopOwner/addpetgroom.html",allgrooms=allgrooms)
+    else:
+        return render_template("index.html")
+
 
 @app.route("/addpetboard" ,methods=["GET","POST"])
 def addpetboard():
@@ -251,6 +338,12 @@ def addpetboard():
             # Calculate the Total Cost of Pet-Board
             totalcost = int(days[0])*int(basiccost) + (50 * int(bnailcutcount[0])) + (100 * int(bhaircutcount[0])) + int(days[0])*(50 * int(bfoodcount[0])) + (30 * int(bbathcount[0]))
 
+            #Add a Trigger
+            """
+            cur.execute("create trigger calculate_total_cost before insert on board_details for each row set new.b_totalcost = new.b_totalcost + new.b_totalcost * 0.18")
+            """
+
+            #Insert details into board_details
             cur.execute("Insert into board_details(b_basiccost,b_totalcost,b_foodpref,b_nodays,b_fromdate,b_tilldate,b_healthcond,p_id,b_nailcutcount,b_haircutcount,b_bathcount,b_foodcount) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",(basiccost,totalcost,petfoodpref,days,fromdate,tilldate,pethealthcond,data,bnailcutcount,bhaircutcount,bbathcount,bfoodcount))
 
             mysql.connection.commit()
@@ -331,7 +424,7 @@ def getpetdetails():
             return render_template("ShopOwner/getpetdetails.html",data=data,id = id)
         else:
             return render_template("index.html")
-
+"""
 @app.route("/addactivity/<id>",methods=["GET","POST"])
 def addactivity(id):
     cookies = request.cookies
@@ -389,14 +482,66 @@ def addactivity(id):
             return render_template("ShopOwner/addactivity.html",id=id,activities=activities)
     else:
         return render_template("index.html")
+"""
+@app.route("/addactivity/<id>",methods=["GET","POST"])
+def addactivity(id):
+    cookies = request.cookies
+    email = cookies.get("email")
+    password = cookies.get("password")
+    if request.method=="GET":
+        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
+            cur = mysql.connection.cursor()
+            # Get all Activities
+            cur.execute("select pa_type from pet_activitycategory where pa_category='EATING FOOD'")
+            food=cur.fetchall()
+            cur.execute("select pa_type from pet_activitycategory where pa_category='GROOMING'")
+            groom=cur.fetchall()
+            cur.execute("select pa_type from pet_activitycategory where pa_category='PLAYING GAMES'")
+            game=cur.fetchall()
+            activities = food+groom+game
+            mysql.connection.commit()
+            cur.close()
+            return render_template("ShopOwner/addactivity.html",id=id,activities=activities)
+    if request.method=="POST":
+        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
+            cur = mysql.connection.cursor()
+            #Get all Activities
+            cur.execute("select pa_type from pet_activitycategory where pa_category='EATING FOOD'")
+            food = cur.fetchall()
+            cur.execute("select pa_type from pet_activitycategory where pa_category='GROOMING'")
+            groom = cur.fetchall()
+            cur.execute("select pa_type from pet_activitycategory where pa_category='PLAYING GAMES'")
+            game = cur.fetchall()
+            activities = food + groom + game
+
+            #Get details from form
+            activitycategory = request.form.get("activitycategory")
+            pactivity = request.form.get("pactivity")
+            duration = request.form.get("duration")
+            health = request.form.get("health")
+            print(activitycategory,pactivity,duration,health)
+
+            #Get the pac_id from pet_activitycategory
+            cur.execute("select pac_id from pet_activitycategory where pa_category=%s and pa_type=%s",(activitycategory,pactivity))
+            pacid=cur.fetchall()
+
+            #Add all details
+            cur.execute("insert into pet_activity(p_id,pa_duration,pac_id,p_health) values(%s,%s,%s,%s)",(id,duration,pacid,health))
+            mysql.connection.commit()
+            cur.close()
+            return render_template("ShopOwner/addactivity.html",id=id,activities=activities)
+    else:
+        return render_template("index.html")
 
 #Route to get Pet-Activity details for Pet-Owner
 @app.route("/getmypadetails/<id>")
 def getmypadetails(id):
     if request.method=="GET":
         cur = mysql.connection.cursor()
-        cur.execute("select pa_date,DAYNAME(pa_date),pa_time,pa_type,pa_category,pa_duration,pet_health from pet_activities where p_id=%s order by pa_time",[id])
-        data = cur.fetchall()
+
+        #Get all pet_activities
+        cur.execute("select pa_date,DAYNAME(pa_date),pa_time,pa_category,pa_type,pa_duration,p_health from pet_activity,pet_activitycategory where pet_activity.pac_id=pet_activitycategory.pac_id and p_id=%s",[id])
+        data=cur.fetchall()
         mysql.connection.commit()
         cur.close()
         return render_template("PetOwner/getmypadetails.html",data=data)
@@ -491,7 +636,7 @@ def addpetonly(id):
             return render_template("ShopOwner/addboarddetails.html",id=id)
     else:
         return render_template("index.html")
-
+"""
 #Route to delete a Pet-Food
 @app.route("/deletepetfood/<id>", methods=["GET","POST"])
 def deletepetfood(id):
@@ -540,6 +685,61 @@ def deletepetgroom(id):
             #Delete the Pet-Groom
             cur = mysql.connection.cursor()
             cur.execute("delete from pet_groom where pg_id=%s",[id])
+            mysql.connection.commit()
+            cur.close()
+            return redirect('/addpetgroom')
+    else:
+        return render_template("index.html")
+"""
+
+#Route to delete a Pet-Food
+@app.route("/deletepetfood/<id>", methods=["GET","POST"])
+def deletepetfood(id):
+    cookies = request.cookies
+    email = cookies.get("email")
+    password = cookies.get("password")
+    if request.method == "POST":
+        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
+
+            #Delete the Pet-Food
+            cur = mysql.connection.cursor()
+            cur.execute("delete from pet_activitycategory where pac_id=%s",[id])
+            mysql.connection.commit()
+            cur.close()
+            return redirect('/addpetfood')
+    else:
+        return render_template("index.html")
+
+#Route to Delete a Pet-Game
+@app.route("/deletepetgame/<id>", methods=["GET","POST"])
+def deletepetgame(id):
+    cookies = request.cookies
+    email = cookies.get("email")
+    password = cookies.get("password")
+    if request.method == "POST":
+        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
+
+            #Delete the Pet-Game
+            cur = mysql.connection.cursor()
+            cur.execute("delete from pet_activitycategory where pac_id=%s",[id])
+            mysql.connection.commit()
+            cur.close()
+            return redirect('/addpetgame')
+    else:
+        return render_template("index.html")
+
+#Route to Delete a Pet-Groom
+@app.route("/deletepetgroom/<id>", methods=["GET","POST"])
+def deletepetgroom(id):
+    cookies = request.cookies
+    email = cookies.get("email")
+    password = cookies.get("password")
+    if request.method == "POST":
+        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
+
+            #Delete the Pet-Groom
+            cur = mysql.connection.cursor()
+            cur.execute("delete from pet_activitycategory where pac_id=%s",[id])
             mysql.connection.commit()
             cur.close()
             return redirect('/addpetgroom')
