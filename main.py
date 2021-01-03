@@ -1,7 +1,8 @@
-from flask import Flask,render_template,redirect,url_for,flash,session
+from flask import Flask,render_template,redirect,url_for,flash
 from flask import request, make_response
 from flask_mysqldb import MySQL
 
+#To create Pet-Id
 import random
 import string
 
@@ -11,7 +12,6 @@ app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'vrashank'
 app.config['MYSQL_DB'] = 'pet_boarding_system'
-
 
 mysql = MySQL(app)
 
@@ -27,7 +27,7 @@ def petownerlogin():
         id = request.form.get("id")
         cur = mysql.connection.cursor()
         checkpet=cur.execute("select p_id from pet_details where p_id=%s",[id])
-        checkdata=cur.execute("select pa_type,pa_category from pet_activities where p_id=%s",[id])
+        checkdata=cur.execute("select pa_id from pet_activity where p_id=%s",[id])
         if(checkdata):
             mysql.connection.commit()
             cur.close()
@@ -94,6 +94,7 @@ def addpetowner():
     if request.method == "POST":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
 
+
             poname = request.form.get("poname")
             poemail = request.form.get("poemail")
             pophone = request.form.get("pophone")
@@ -137,86 +138,7 @@ def addpetdetails():
     else:
         return render_template("index.html")
 
-"""
-@app.route("/addpetfood" ,methods=["GET","POST"])
-def addpetfood():
-    cookies = request.cookies
-    email = cookies.get("email")
-    password = cookies.get("password")
-    if request.method=="GET":
-        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-            cur = mysql.connection.cursor()
-            cur.execute("select pf_id,pf_category from pet_food")
-            allfood = cur.fetchall()
-            mysql.connection.commit()
-            cur.close()
-            return render_template("ShopOwner/addpetfood.html",allfood=allfood)
-    if request.method=="POST":
-        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-            food = request.form.get("food")
-            cur = mysql.connection.cursor()
-            cur.execute("Insert into pet_food(pf_category) values(%s)", [food])
-            cur.execute("select pf_id,pf_category from pet_food")
-            allfood = cur.fetchall()
-            print(allfood)
-            mysql.connection.commit()
-            cur.close()
-            return render_template("ShopOwner/addpetfood.html",allfood=allfood)
-    else:
-        return render_template("index.html")
 
-@app.route("/addpetgame" ,methods=["GET","POST"])
-def addpetgame():
-    cookies = request.cookies
-    email = cookies.get("email")
-    password = cookies.get("password")
-    if request.method=="GET":
-        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-            cur = mysql.connection.cursor()
-            cur.execute("select p_gameid,p_gamecategory from pet_games")
-            allgames = cur.fetchall()
-            mysql.connection.commit()
-            cur.close()
-            return render_template("ShopOwner/addpetgame.html",allgames=allgames)
-    if request.method=="POST":
-        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-            cur=mysql.connection.cursor()
-            game = request.form.get("game")
-            cur.execute("Insert into pet_games(p_gamecategory) values(%s)",[game])
-            cur.execute("select p_gameid,p_gamecategory from pet_games")
-            allgames = cur.fetchall()
-            mysql.connection.commit()
-            cur.close()
-            return render_template("ShopOwner/addpetgame.html",allgames=allgames)
-    else:
-        return render_template("index.html")
-
-@app.route("/addpetgroom" ,methods=["GET","POST"])
-def addpetgroom():
-    cookies = request.cookies
-    email = cookies.get("email")
-    password = cookies.get("password")
-    if request.method=="GET":
-        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-            cur = mysql.connection.cursor()
-            cur.execute("select pg_id,pg_category from pet_groom")
-            allgrooms = cur.fetchall()
-            mysql.connection.commit()
-            cur.close()
-            return render_template("ShopOwner/addpetgroom.html",allgrooms=allgrooms)
-    if request.method=="POST":
-        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-            cur=mysql.connection.cursor()
-            groom = request.form.get("groom")
-            cur.execute("Insert into pet_groom(pg_category) values(%s)", [groom])
-            cur.execute("select pg_id,pg_category from pet_groom")
-            allgrooms = cur.fetchall()
-            mysql.connection.commit()
-            cur.close()
-            return render_template("ShopOwner/addpetgroom.html",allgrooms=allgrooms)
-    else:
-        return render_template("index.html")
-"""
 @app.route("/addpetfood" ,methods=["GET","POST"])
 def addpetfood():
     cookies = request.cookies
@@ -424,65 +346,7 @@ def getpetdetails():
             return render_template("ShopOwner/getpetdetails.html",data=data,id = id)
         else:
             return render_template("index.html")
-"""
-@app.route("/addactivity/<id>",methods=["GET","POST"])
-def addactivity(id):
-    cookies = request.cookies
-    email = cookies.get("email")
-    password = cookies.get("password")
-    if request.method=="GET":
-        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-            cur = mysql.connection.cursor()
-            # Get all Activities
-            cur.execute("select pf_category from pet_food")
-            food = cur.fetchall()
-            cur.execute("select pg_category from pet_groom")
-            groom = cur.fetchall()
-            cur.execute("select p_gamecategory from pet_games")
-            game = cur.fetchall()
-            activities = ()
-            for i in food:
-                activities = activities + i
-            for j in groom:
-                activities = activities + j
-            for k in game:
-                activities = activities + k
-            mysql.connection.commit()
-            cur.close()
-            return render_template("ShopOwner/addactivity.html",id=id,activities=activities)
-    if request.method=="POST":
-        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-            cur = mysql.connection.cursor()
-            #Get all Activities
-            cur.execute("select pf_category from pet_food")
-            food = cur.fetchall()
-            cur.execute("select pg_category from pet_groom")
-            groom = cur.fetchall()
-            cur.execute("select p_gamecategory from pet_games")
-            game = cur.fetchall()
-            activities =()
-            for i in food:
-                activities=activities+i
-            for j in groom:
-                activities=activities+j
-            for k in game:
-                activities=activities+k
 
-            #Get details from form
-            activitytype = request.form.get("activitytype")
-            pactivities = request.form.get("pactivities")
-            duration = request.form.get("duration")
-            health = request.form.get("health")
-            print(activitytype,pactivities,duration,health)
-
-            #Add all details
-            cur.execute("insert into pet_activities(p_id,pa_duration,pa_type,pa_category,pet_health) values(%s,%s,%s,%s,%s)",(id,duration,activitytype,pactivities,health))
-            mysql.connection.commit()
-            cur.close()
-            return render_template("ShopOwner/addactivity.html",id=id,activities=activities)
-    else:
-        return render_template("index.html")
-"""
 @app.route("/addactivity/<id>",methods=["GET","POST"])
 def addactivity(id):
     cookies = request.cookies
@@ -636,61 +500,6 @@ def addpetonly(id):
             return render_template("ShopOwner/addboarddetails.html",id=id)
     else:
         return render_template("index.html")
-"""
-#Route to delete a Pet-Food
-@app.route("/deletepetfood/<id>", methods=["GET","POST"])
-def deletepetfood(id):
-    cookies = request.cookies
-    email = cookies.get("email")
-    password = cookies.get("password")
-    if request.method == "POST":
-        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-
-            #Delete the Pet-Food
-            cur = mysql.connection.cursor()
-            cur.execute("delete from pet_food where pf_id=%s",[id])
-            mysql.connection.commit()
-            cur.close()
-            return redirect('/addpetfood')
-    else:
-        return render_template("index.html")
-
-#Route to Delete a Pet-Game
-@app.route("/deletepetgame/<id>", methods=["GET","POST"])
-def deletepetgame(id):
-    cookies = request.cookies
-    email = cookies.get("email")
-    password = cookies.get("password")
-    if request.method == "POST":
-        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-
-            #Delete the Pet-Game
-            cur = mysql.connection.cursor()
-            cur.execute("delete from pet_games where p_gameid=%s",[id])
-            mysql.connection.commit()
-            cur.close()
-            return redirect('/addpetgame')
-    else:
-        return render_template("index.html")
-
-#Route to Delete a Pet-Groom
-@app.route("/deletepetgroom/<id>", methods=["GET","POST"])
-def deletepetgroom(id):
-    cookies = request.cookies
-    email = cookies.get("email")
-    password = cookies.get("password")
-    if request.method == "POST":
-        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-
-            #Delete the Pet-Groom
-            cur = mysql.connection.cursor()
-            cur.execute("delete from pet_groom where pg_id=%s",[id])
-            mysql.connection.commit()
-            cur.close()
-            return redirect('/addpetgroom')
-    else:
-        return render_template("index.html")
-"""
 
 #Route to delete a Pet-Food
 @app.route("/deletepetfood/<id>", methods=["GET","POST"])
