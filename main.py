@@ -347,6 +347,7 @@ def getpetdetails():
         else:
             return render_template("index.html")
 
+
 @app.route("/addactivity/<id>",methods=["GET","POST"])
 def addactivity(id):
     cookies = request.cookies
