@@ -93,7 +93,13 @@ def addpetowner():
             return render_template("ShopOwner/addpetowner.html")
     if request.method == "POST":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-
+            """CREATE TABLE `pet_owner` (
+            `po_id` int(11) NOT NULL,
+            `po_name` varchar(50) NOT NULL,
+            `po_address` varchar(150) NOT NULL,
+            `po_phone` varchar(13) NOT NULL,
+            `po_email` varchar(30) NOT NULL
+             )"""
 
             poname = request.form.get("poname")
             poemail = request.form.get("poemail")
@@ -121,6 +127,16 @@ def addpetdetails():
             letters = string.ascii_lowercase
             result_str = ''.join(random.choice(letters) for i in range(5))
             cur = mysql.connection.cursor()
+            """CREATE TABLE `pet_details` (
+            `p_id` varchar(5) NOT NULL,
+            `p_name` varchar(30) NOT NULL,
+            `p_category` varchar(20) NOT NULL,
+            `p_breed` varchar(20) NOT NULL,
+            `p_age` int(3) NOT NULL,
+            `p_regdate` date NOT NULL DEFAULT current_timestamp(),
+            `p_regtime` time NOT NULL DEFAULT current_timestamp(),
+            `po_id` int(11) NOT NULL
+            )"""
             pname = request.form.get("pname")
             pcategory = request.form.get("pcategory")
             pbreed = request.form.get("pbreed")
@@ -155,6 +171,12 @@ def addpetfood():
             return render_template("ShopOwner/addpetfood.html",allfood=allfood)
     if request.method=="POST":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
+            """CREATE TABLE `pet_activitycategory` (
+              `pac_id` int(11) NOT NULL,
+              `pa_category` varchar(50) NOT NULL,
+              `pa_type` varchar(50) NOT NULL
+            )"""
+
             pacategory='EATING FOOD'
             food = request.form.get("food")
             cur = mysql.connection.cursor()
@@ -236,6 +258,22 @@ def addpetboard():
     if request.method=="POST":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
             cur=mysql.connection.cursor()
+            """CREATE TABLE `board_details` (
+            `b_id` int(11) NOT NULL,
+            `b_basiccost` int(11) NOT NULL,
+            `b_totalcost` int(11) DEFAULT NULL,
+            `b_nailcutcount` int(11) DEFAULT 0,
+            `b_haircutcount` int(11) DEFAULT 0,
+            `b_bathcount` int(11) DEFAULT 0,
+            `b_foodcount` int(11) NOT NULL,
+            `b_foodpref` varchar(100) DEFAULT NULL,
+            `b_fromdate` date NOT NULL,
+            `b_nodays` int(11) DEFAULT NULL,
+            `b_tilldate` date NOT NULL,
+            `p_id` varchar(5) NOT NULL,
+            `b_healthcond` varchar(100) DEFAULT NULL
+             )"""
+
             basiccost = request.form.get("basiccost")
             boardfromdate = request.form.get("boardfromdate")
             boardtilldate = request.form.get("boardtilldate")
@@ -370,6 +408,15 @@ def addactivity(id):
     if request.method=="POST":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
             cur = mysql.connection.cursor()
+            """CREATE TABLE `pet_activity` (
+            `pa_id` int(11) NOT NULL,
+            `pac_id` int(11) NOT NULL,
+            `pa_duration` int(11) NOT NULL,
+            `pa_time` time NOT NULL DEFAULT current_timestamp(),
+            `pa_date` date NOT NULL DEFAULT current_timestamp(),
+            `p_health` varchar(100) NOT NULL,
+            `p_id` text NOT NULL
+            )"""
             #Get all Activities
             cur.execute("select pa_type from pet_activitycategory where pa_category='EATING FOOD'")
             food = cur.fetchall()
