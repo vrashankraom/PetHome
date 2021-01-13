@@ -1,19 +1,16 @@
 from flask import Flask,render_template,redirect,url_for,flash
 from flask import request, make_response
-from flask_mysqldb import MySQL
+import mysql.connector as mysql
+
 
 #To create Pet-Id
 import random
 import string
 
 app = Flask(__name__)
-app.secret_key = "pet-boarding"
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'vrashank'
-app.config['MYSQL_DB'] = 'pet_boarding_system'
+mydb = mysql.connect(host="localhost",user="root",passwd="vrashank",database="pet_boarding")
 
-mysql = MySQL(app)
+app.secret_key = "pet-boarding"
 
 @app.route("/")
 def home():
@@ -25,17 +22,22 @@ def petownerlogin():
         return render_template("PetOwner/petowner.html")
     if request.method=="POST":
         id = request.form.get("id")
-        cur = mysql.connection.cursor()
-        checkpet=cur.execute("select p_id from pet_details where p_id=%s",[id])
-        checkdata=cur.execute("select pa_id from pet_activity where p_id=%s",[id])
+        cur = mydb.cursor(buffered=True)
+        cur.execute("select p_id from pet_details where p_id=%s",[id])
+        checkpet=cur.fetchone()
+        checkpet=bool(checkpet)
+        cur.execute("select pa_id from pet_activity where p_id=%s",[id])
+        checkdata=cur.fetchone()
+        checkdata=bool(checkdata)
+        print(checkpet,checkdata)
         if(checkdata):
-            mysql.connection.commit()
+            mydb.commit()
             cur.close()
             return redirect(url_for('getmypadetails',id=id))
-        elif(checkpet and not checkdata):
+        if(checkpet and not checkdata):
             flash("Pet-Activity data is not added yet!","info")
             return render_template("PetOwner/petowner.html")
-        else:
+        if(not checkpet):
             flash("Invalid Pet-Id!","info")
             return render_template("PetOwner/petowner.html")
 
@@ -93,21 +95,15 @@ def addpetowner():
             return render_template("ShopOwner/addpetowner.html")
     if request.method == "POST":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-            """CREATE TABLE `pet_owner` (
-            `po_id` int(11) NOT NULL,
-            `po_name` varchar(50) NOT NULL,
-            `po_address` varchar(150) NOT NULL,
-            `po_phone` varchar(13) NOT NULL,
-            `po_email` varchar(30) NOT NULL
-             )"""
+            cur = mydb.cursor(buffered=True)
+            #cur.execute("CREATE TABLE pet_owner(po_id int(11) primary key AUTO_INCREMENT,po_name varchar(50) NOT NULL,po_address varchar(150) NOT NULL,po_phone varchar(13) NOT NULL,po_email varchar(30) NOT NULL);")
 
             poname = request.form.get("poname")
             poemail = request.form.get("poemail")
             pophone = request.form.get("pophone")
             poaddress = request.form.get("poaddress")
-            cur = mysql.connection.cursor()
             cur.execute("Insert into pet_owner(po_name,po_email,po_phone,po_address) values(%s, %s, %s, %s)",(poname,poemail,pophone,poaddress))
-            mysql.connection.commit()
+            mydb.commit()
             cur.close()
 
             return render_template("ShopOwner/addpetdetails.html")
@@ -126,17 +122,10 @@ def addpetdetails():
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
             letters = string.ascii_lowercase
             result_str = ''.join(random.choice(letters) for i in range(5))
-            cur = mysql.connection.cursor()
-            """CREATE TABLE `pet_details` (
-            `p_id` varchar(5) NOT NULL,
-            `p_name` varchar(30) NOT NULL,
-            `p_category` varchar(20) NOT NULL,
-            `p_breed` varchar(20) NOT NULL,
-            `p_age` int(3) NOT NULL,
-            `p_regdate` date NOT NULL DEFAULT current_timestamp(),
-            `p_regtime` time NOT NULL DEFAULT current_timestamp(),
-            `po_id` int(11) NOT NULL
-            )"""
+            cur = mydb.cursor(buffered=True)
+
+            #cur.execute("""CREATE TABLE pet_details (p_id varchar(5) primary key,p_name varchar(30),p_category varchar(20),p_breed varchar(20),p_age int(3),p_regdate date  DEFAULT current_timestamp(),p_regtime time  DEFAULT current_timestamp(),po_id int(11), foreign key(po_id) references pet_owner(po_id));""")
+
             pname = request.form.get("pname")
             pcategory = request.form.get("pcategory")
             pbreed = request.form.get("pbreed")
@@ -147,8 +136,8 @@ def addpetdetails():
             cur.execute("select po_id from pet_owner where po_id=(select MAX(po_id) from pet_owner)")
             data=cur.fetchall()
             print("max is ",data)
-            cur.execute("Insert into pet_details(p_id,p_name,p_age,p_category,p_breed,po_id) values(%s, %s, %s, %s, %s, %s)", (result_str,pname,page,pcategory,pbreed,data))
-            mysql.connection.commit()
+            cur.execute("Insert into pet_details(p_id,p_name,p_age,p_category,p_breed,po_id) values(%s, %s, %s, %s, %s, %s)",(result_str,pname,page,pcategory,pbreed,data[0][0]))
+            mydb.commit()
             cur.close()
             return render_template("ShopOwner/addboarddetails.html")
     else:
@@ -162,29 +151,27 @@ def addpetfood():
     password = cookies.get("password")
     if request.method=="GET":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-            cur = mysql.connection.cursor()
+            cur = mydb.cursor(buffered=True)
             pacategory='EATING FOOD'
+
             cur.execute("select pac_id,pa_type from pet_activitycategory where pa_category=%s",[pacategory])
-            allfood = cur.fetchall()
-            mysql.connection.commit()
+            allfood=cur.fetchall()
+            mydb.commit()
             cur.close()
             return render_template("ShopOwner/addpetfood.html",allfood=allfood)
     if request.method=="POST":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-            """CREATE TABLE `pet_activitycategory` (
-              `pac_id` int(11) NOT NULL,
-              `pa_category` varchar(50) NOT NULL,
-              `pa_type` varchar(50) NOT NULL
-            )"""
+            cur = mydb.cursor(buffered=True)
+
+            #cur.execute("""CREATE TABLE pet_activitycategory (pac_id int(11) primary key AUTO_INCREMENT,pa_category varchar(50) NOT NULL,pa_type varchar(50) NOT NULL);""")
 
             pacategory='EATING FOOD'
             food = request.form.get("food")
-            cur = mysql.connection.cursor()
             cur.execute("Insert into pet_activitycategory(pa_category,pa_type) values(%s,%s)", (pacategory,food))
             cur.execute("select pac_id,pa_type from pet_activitycategory where pa_category=%s",[pacategory])
             allfood = cur.fetchall()
             print(allfood)
-            mysql.connection.commit()
+            mydb.commit()
             cur.close()
             return render_template("ShopOwner/addpetfood.html",allfood=allfood)
     else:
@@ -197,22 +184,22 @@ def addpetgame():
     password = cookies.get("password")
     if request.method=="GET":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-            cur = mysql.connection.cursor()
+            cur = mydb.cursor(buffered=True)
             pacategory = 'PLAYING GAMES'
             cur.execute("select pac_id,pa_type from pet_activitycategory where pa_category=%s", [pacategory])
             allgames = cur.fetchall()
-            mysql.connection.commit()
+            mydb.commit()
             cur.close()
             return render_template("ShopOwner/addpetgame.html",allgames=allgames)
     if request.method=="POST":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
             pacategory = 'PLAYING GAMES'
-            cur=mysql.connection.cursor()
+            cur=mydb.cursor(buffered=True)
             game = request.form.get("game")
             cur.execute("Insert into pet_activitycategory(pa_category,pa_type) values(%s,%s)", (pacategory,game))
             cur.execute("select pac_id,pa_type from pet_activitycategory where pa_category=%s", [pacategory])
             allgames = cur.fetchall()
-            mysql.connection.commit()
+            mydb.commit()
             cur.close()
             return render_template("ShopOwner/addpetgame.html",allgames=allgames)
     else:
@@ -225,22 +212,22 @@ def addpetgroom():
     password = cookies.get("password")
     if request.method=="GET":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-            cur = mysql.connection.cursor()
+            cur = mydb.cursor(buffered=True)
             pacategory = 'GROOMING'
             cur.execute("select pac_id,pa_type from pet_activitycategory where pa_category=%s", [pacategory])
             allgrooms = cur.fetchall()
-            mysql.connection.commit()
+            mydb.commit()
             cur.close()
             return render_template("ShopOwner/addpetgroom.html",allgrooms=allgrooms)
     if request.method=="POST":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
             pacategory = 'GROOMING'
-            cur=mysql.connection.cursor()
+            cur=mydb.cursor(buffered=True)
             groom = request.form.get("groom")
             cur.execute("Insert into pet_activitycategory(pa_category,pa_type) values(%s,%s)", (pacategory,groom))
             cur.execute("select pac_id,pa_type from pet_activitycategory where pa_category=%s", [pacategory])
             allgrooms = cur.fetchall()
-            mysql.connection.commit()
+            mydb.commit()
             cur.close()
             return render_template("ShopOwner/addpetgroom.html",allgrooms=allgrooms)
     else:
@@ -257,22 +244,8 @@ def addpetboard():
             return redirect(url_for('givecode'))
     if request.method=="POST":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-            cur=mysql.connection.cursor()
-            """CREATE TABLE `board_details` (
-            `b_id` int(11) NOT NULL,
-            `b_basiccost` int(11) NOT NULL,
-            `b_totalcost` int(11) DEFAULT NULL,
-            `b_nailcutcount` int(11) DEFAULT 0,
-            `b_haircutcount` int(11) DEFAULT 0,
-            `b_bathcount` int(11) DEFAULT 0,
-            `b_foodcount` int(11) NOT NULL,
-            `b_foodpref` varchar(100) DEFAULT NULL,
-            `b_fromdate` date NOT NULL,
-            `b_nodays` int(11) DEFAULT NULL,
-            `b_tilldate` date NOT NULL,
-            `p_id` varchar(5) NOT NULL,
-            `b_healthcond` varchar(100) DEFAULT NULL
-             )"""
+            cur=mydb.cursor(buffered=True)
+            #cur.execute("CREATE TABLE board_details (b_id int(11) primary key AUTO_INCREMENT,b_basiccost int(11) NOT NULL,b_totalcost int(11) DEFAULT NULL,b_nailcutcount int(11) DEFAULT 0,b_haircutcount int(11) DEFAULT 0,b_bathcount int(11) DEFAULT 0,b_foodcount int(11) NOT NULL,b_foodpref varchar(100) DEFAULT NULL,b_fromdate date NOT NULL,b_nodays int(11) DEFAULT NULL,b_tilldate date NOT NULL,p_id varchar(5) NOT NULL,b_healthcond varchar(100) DEFAULT NULL, foreign key(p_id) references pet_details(p_id))")
 
             basiccost = request.form.get("basiccost")
             boardfromdate = request.form.get("boardfromdate")
@@ -294,19 +267,18 @@ def addpetboard():
 
             cur.execute("select p_id from pet_details order by p_regdate DESC,p_regtime DESC limit 1")
             data = cur.fetchone()
-
+            print(bbathcount,bfoodcount,days,data)
             # Calculate the Total Cost of Pet-Board
             totalcost = int(days[0])*int(basiccost) + (50 * int(bnailcutcount[0])) + (100 * int(bhaircutcount[0])) + int(days[0])*(50 * int(bfoodcount[0])) + (30 * int(bbathcount[0]))
 
             #Add a Trigger
-            """
-            cur.execute("create trigger calculate_total_cost before insert on board_details for each row set new.b_totalcost = new.b_totalcost + new.b_totalcost * 0.18")
-            """
+
+            #cur.execute("create trigger calculate_total_cost before insert on board_details for each row set new.b_totalcost = new.b_totalcost + new.b_totalcost * 0.18")
 
             #Insert details into board_details
-            cur.execute("Insert into board_details(b_basiccost,b_totalcost,b_foodpref,b_nodays,b_fromdate,b_tilldate,b_healthcond,p_id,b_nailcutcount,b_haircutcount,b_bathcount,b_foodcount) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",(basiccost,totalcost,petfoodpref,days,fromdate,tilldate,pethealthcond,data,bnailcutcount,bhaircutcount,bbathcount,bfoodcount))
+            cur.execute("Insert into board_details(b_basiccost,b_totalcost,b_foodpref,b_nodays,b_fromdate,b_tilldate,b_healthcond,p_id,b_nailcutcount,b_haircutcount,b_bathcount,b_foodcount) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",(basiccost,totalcost,petfoodpref,days[0],fromdate,tilldate,pethealthcond,data[0],bnailcutcount,bhaircutcount,bbathcount,bfoodcount))
 
-            mysql.connection.commit()
+            mydb.commit()
             cur.close()
             return redirect(url_for('givecode'))
     else:
@@ -319,7 +291,7 @@ def givecode():
     email = cookies.get("email")
     password = cookies.get("password")
     if(email == "vrashankrao@gmail.com" and password == "vrashank"):
-        cur = mysql.connection.cursor()
+        cur = mydb.cursor(buffered=True)
         cur.execute("select p_id from pet_details order by p_regdate DESC,p_regtime DESC limit 1")
         data = cur.fetchone()
         print(data)
@@ -360,7 +332,7 @@ def givecode():
         #Get Total Number of Meals
         totalfoodcount=days[0]*foodcount[0]
 
-        mysql.connection.commit()
+        mydb.commit()
         cur.close()
         return render_template("ShopOwner/givecode.html", Code=data[0],FoodCount=totalfoodcount,FoodCost=food,HairCutCount=haircutcount[0],HairCutCost=haircut,NailCutCount=nailcutcount[0],NailCutCost=nailcut,BathCount=bathcount[0],BathCost=bath,TotalCost=totalcost[0],days=days[0],singleday=basiccost[0],basiccost=totalbasiccost)
     else:
@@ -373,13 +345,13 @@ def getpetdetails():
     password = cookies.get("password")
     if request.method=="GET":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-            cur = mysql.connection.cursor()
+            cur = mydb.cursor(buffered=True)
             cur.execute("select p_id,p_name,p_category,DATE_FORMAT(p_regdate,'%d/%m/%Y'),po_name from pet_details,pet_owner where pet_details.po_id=pet_owner.po_id order by pet_details.po_id")
             data = cur.fetchall()
             cur.execute("select p_id from pet_details order by po_id")
             id = cur.fetchall()
             print(id)
-            mysql.connection.commit()
+            mydb.commit()
             cur.close()
             return render_template("ShopOwner/getpetdetails.html",data=data,id = id)
         else:
@@ -393,7 +365,7 @@ def addactivity(id):
     password = cookies.get("password")
     if request.method=="GET":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-            cur = mysql.connection.cursor()
+            cur = mydb.cursor(buffered=True)
             # Get all Activities
             cur.execute("select pa_type from pet_activitycategory where pa_category='EATING FOOD'")
             food=cur.fetchall()
@@ -402,21 +374,15 @@ def addactivity(id):
             cur.execute("select pa_type from pet_activitycategory where pa_category='PLAYING GAMES'")
             game=cur.fetchall()
             activities = food+groom+game
-            mysql.connection.commit()
+            mydb.commit()
             cur.close()
             return render_template("ShopOwner/addactivity.html",id=id,activities=activities)
     if request.method=="POST":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-            cur = mysql.connection.cursor()
-            """CREATE TABLE `pet_activity` (
-            `pa_id` int(11) NOT NULL,
-            `pac_id` int(11) NOT NULL,
-            `pa_duration` int(11) NOT NULL,
-            `pa_time` time NOT NULL DEFAULT current_timestamp(),
-            `pa_date` date NOT NULL DEFAULT current_timestamp(),
-            `p_health` varchar(100) NOT NULL,
-            `p_id` text NOT NULL
-            )"""
+            cur = mydb.cursor(buffered=True)
+
+            #cur.execute("""CREATE TABLE pet_activity (pa_id int(11) primary key AUTO_INCREMENT,pac_id int(11) NOT NULL,pa_duration int(11) NOT NULL,pa_time time NOT NULL DEFAULT current_timestamp(),pa_date date NOT NULL DEFAULT current_timestamp(),p_health varchar(100) NOT NULL,p_id varchar(5),foreign key(p_id) references pet_details(p_id),foreign key(pac_id) references pet_activitycategory(pac_id))""")
+
             #Get all Activities
             cur.execute("select pa_type from pet_activitycategory where pa_category='EATING FOOD'")
             food = cur.fetchall()
@@ -436,10 +402,11 @@ def addactivity(id):
             #Get the pac_id from pet_activitycategory
             cur.execute("select pac_id from pet_activitycategory where pa_category=%s and pa_type=%s",(activitycategory,pactivity))
             pacid=cur.fetchall()
+            print(pacid)
 
             #Add all details
-            cur.execute("insert into pet_activity(p_id,pa_duration,pac_id,p_health) values(%s,%s,%s,%s)",(id,duration,pacid,health))
-            mysql.connection.commit()
+            cur.execute("insert into pet_activity(p_id,pa_duration,pac_id,p_health) values(%s,%s,%s,%s)",(id,duration,pacid[0][0],health))
+            mydb.commit()
             cur.close()
             return render_template("ShopOwner/addactivity.html",id=id,activities=activities)
     else:
@@ -449,12 +416,12 @@ def addactivity(id):
 @app.route("/getmypadetails/<id>")
 def getmypadetails(id):
     if request.method=="GET":
-        cur = mysql.connection.cursor()
+        cur = mydb.cursor(buffered=True)
 
         #Get all pet_activities
         cur.execute("select pa_date,DAYNAME(pa_date),pa_time,pa_category,pa_type,pa_duration,p_health from pet_activity,pet_activitycategory where pet_activity.pac_id=pet_activitycategory.pac_id and p_id=%s",[id])
         data=cur.fetchall()
-        mysql.connection.commit()
+        mydb.commit()
         cur.close()
         return render_template("PetOwner/getmypadetails.html",data=data)
     else:
@@ -468,12 +435,12 @@ def getalldetails():
     password = cookies.get("password")
     if request.method=="GET":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-            cur = mysql.connection.cursor()
+            cur = mydb.cursor(buffered=True)
             cur.execute("select p_id,p_name,p_category,DATE_FORMAT(p_regdate,'%d/%m/%Y'),po_name from pet_details,pet_owner where pet_details.po_id=pet_owner.po_id order by pet_details.po_id")
             data = cur.fetchall()
             cur.execute("select p_id from pet_details order by po_id")
             id = cur.fetchall()
-            mysql.connection.commit()
+            mydb.commit()
             cur.close()
             return render_template("ShopOwner/getalldetails.html",data=data,id = id)
         else:
@@ -486,7 +453,7 @@ def getboarddetails(id):
     email = cookies.get("email")
     password = cookies.get("password")
     if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-        cur = mysql.connection.cursor()
+        cur = mydb.cursor(buffered=True)
 
         # Get all details
         cur.execute("select p_id,p_regdate,p_name,p_category,p_breed,p_age from pet_details where pet_details.p_id=%s",[id])
@@ -497,7 +464,7 @@ def getboarddetails(id):
         countdata = cur.fetchall()
         cur.execute("select po_name,po_phone,po_email,po_address from pet_owner where po_id = (select po_id from pet_details where pet_details.p_id=%s)",[id])
         petownerdata = cur.fetchall()
-        mysql.connection.commit()
+        mydb.commit()
         cur.close()
         return render_template("ShopOwner/getboarddetails.html",petdata=petdata,boarddata=boarddata,petownerdata=petownerdata,countdata=countdata,id=id)
     else:
@@ -511,10 +478,10 @@ def getallpetowners():
     password = cookies.get("password")
     if request.method=="GET":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-            cur = mysql.connection.cursor()
+            cur = mydb.cursor(buffered=True)
             cur.execute("select po_id,po_name,po_phone,po_email from pet_owner order by po_id")
             data = cur.fetchall()
-            mysql.connection.commit()
+            mydb.commit()
             cur.close()
             return render_template("ShopOwner/getallpetowners.html",data=data)
         else:
@@ -534,7 +501,7 @@ def addpetonly(id):
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
             letters = string.ascii_lowercase
             result_str = ''.join(random.choice(letters) for i in range(5))
-            cur = mysql.connection.cursor()
+            cur = mydb.cursor(buffered=True)
             pname = request.form.get("pname")
             pcategory = request.form.get("pcategory")
             pbreed = request.form.get("pbreed")
@@ -543,7 +510,7 @@ def addpetonly(id):
             year = cur.fetchone()
             page = int(year[0]) - int(pyob)
             cur.execute("Insert into pet_details(p_id,p_name,p_age,p_category,p_breed,po_id) values(%s, %s, %s, %s, %s, %s)", (result_str,pname,page,pcategory,pbreed,id))
-            mysql.connection.commit()
+            mydb.commit()
             cur.close()
             return render_template("ShopOwner/addboarddetails.html",id=id)
     else:
@@ -559,9 +526,9 @@ def deletepetfood(id):
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
 
             #Delete the Pet-Food
-            cur = mysql.connection.cursor()
+            cur = mydb.cursor(buffered=True)
             cur.execute("delete from pet_activitycategory where pac_id=%s",[id])
-            mysql.connection.commit()
+            mydb.commit()
             cur.close()
             return redirect('/addpetfood')
     else:
@@ -577,9 +544,9 @@ def deletepetgame(id):
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
 
             #Delete the Pet-Game
-            cur = mysql.connection.cursor()
+            cur = mydb.cursor(buffered=True)
             cur.execute("delete from pet_activitycategory where pac_id=%s",[id])
-            mysql.connection.commit()
+            mydb.commit()
             cur.close()
             return redirect('/addpetgame')
     else:
@@ -595,9 +562,9 @@ def deletepetgroom(id):
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
 
             #Delete the Pet-Groom
-            cur = mysql.connection.cursor()
+            cur = mydb.cursor(buffered=True)
             cur.execute("delete from pet_activitycategory where pac_id=%s",[id])
-            mysql.connection.commit()
+            mydb.commit()
             cur.close()
             return redirect('/addpetgroom')
     else:
@@ -611,10 +578,10 @@ def getapetowner():
     password = cookies.get("password")
     if request.method=="GET":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-            cur = mysql.connection.cursor()
+            cur = mydb.cursor(buffered=True)
             cur.execute("select po_id,po_name,po_phone,po_email from pet_owner order by po_id")
             data = cur.fetchall()
-            mysql.connection.commit()
+            mydb.commit()
             cur.close()
             return render_template("ShopOwner/getapetowner.html",data=data)
         else:
@@ -629,16 +596,16 @@ def updatepetowner(id):
     password = cookies.get("password")
     if request.method == "GET":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-            cur = mysql.connection.cursor()
+            cur = mydb.cursor(buffered=True)
             cur.execute("select po_name,po_phone,po_email,po_address from pet_owner where po_id=%s",[id])
             data = cur.fetchall()
             print(data[0])
-            mysql.connection.commit()
+            mydb.commit()
             cur.close()
             return render_template("ShopOwner/updatepetowner.html",data=data[0],id=id)
     if request.method == "POST":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
-            cur = mysql.connection.cursor()
+            cur = mydb.cursor(buffered=True)
 
             cur.execute("select po_name,po_phone,po_email,po_address from pet_owner where po_id=%s", [id])
             data = cur.fetchall()
@@ -657,7 +624,7 @@ def updatepetowner(id):
                 cur.execute("update pet_owner set po_email=%s where po_id=%s",(poemail, id))
             if(poaddress!= ""):
                 cur.execute("update pet_owner set po_address=%s where po_id=%s",(poaddress, id))
-            mysql.connection.commit()
+            mydb.commit()
             cur.close()
             return redirect(request.url)
     else:
