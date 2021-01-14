@@ -152,10 +152,15 @@ def addpetfood():
     if request.method=="GET":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
             cur = mydb.cursor(buffered=True)
-            pacategory='EATING FOOD'
 
-            cur.execute("select pac_id,pa_type from pet_activitycategory where pa_category=%s",[pacategory])
-            allfood=cur.fetchall()
+            #Create a stored procedure
+            #cur.execute("""CREATE PROCEDURE GetPacId(IN pacategory varchar(30)) BEGIN select pac_id, pa_type from pet_activitycategory where pa_category = pacategory END""")
+
+            #Call the stored procedure
+            cur.callproc('GetPacId',['EATING FOOD'])
+            for results in cur.stored_results():
+                allfood = results.fetchall()
+
             mydb.commit()
             cur.close()
             return render_template("ShopOwner/addpetfood.html",allfood=allfood)
@@ -168,8 +173,11 @@ def addpetfood():
             pacategory='EATING FOOD'
             food = request.form.get("food")
             cur.execute("Insert into pet_activitycategory(pa_category,pa_type) values(%s,%s)", (pacategory,food))
-            cur.execute("select pac_id,pa_type from pet_activitycategory where pa_category=%s",[pacategory])
-            allfood = cur.fetchall()
+
+            #call the procedure
+            cur.callproc('GetPacId', ['EATING FOOD'])
+            for results in cur.stored_results():
+                allfood = results.fetchall()
             print(allfood)
             mydb.commit()
             cur.close()
@@ -185,9 +193,12 @@ def addpetgame():
     if request.method=="GET":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
             cur = mydb.cursor(buffered=True)
-            pacategory = 'PLAYING GAMES'
-            cur.execute("select pac_id,pa_type from pet_activitycategory where pa_category=%s", [pacategory])
-            allgames = cur.fetchall()
+
+            # call the procedure
+            cur.callproc('GetPacId', ['PLAYING GAMES'])
+            for results in cur.stored_results():
+                allgames = results.fetchall()
+
             mydb.commit()
             cur.close()
             return render_template("ShopOwner/addpetgame.html",allgames=allgames)
@@ -197,8 +208,12 @@ def addpetgame():
             cur=mydb.cursor(buffered=True)
             game = request.form.get("game")
             cur.execute("Insert into pet_activitycategory(pa_category,pa_type) values(%s,%s)", (pacategory,game))
-            cur.execute("select pac_id,pa_type from pet_activitycategory where pa_category=%s", [pacategory])
-            allgames = cur.fetchall()
+
+            # call the procedure
+            cur.callproc('GetPacId', ['PLAYING GAMES'])
+            for results in cur.stored_results():
+                allgames = results.fetchall()
+
             mydb.commit()
             cur.close()
             return render_template("ShopOwner/addpetgame.html",allgames=allgames)
@@ -213,9 +228,12 @@ def addpetgroom():
     if request.method=="GET":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
             cur = mydb.cursor(buffered=True)
-            pacategory = 'GROOMING'
-            cur.execute("select pac_id,pa_type from pet_activitycategory where pa_category=%s", [pacategory])
-            allgrooms = cur.fetchall()
+
+            # call the procedure
+            cur.callproc('GetPacId', ['GROOMING'])
+            for results in cur.stored_results():
+                allgrooms = results.fetchall()
+
             mydb.commit()
             cur.close()
             return render_template("ShopOwner/addpetgroom.html",allgrooms=allgrooms)
@@ -225,8 +243,12 @@ def addpetgroom():
             cur=mydb.cursor(buffered=True)
             groom = request.form.get("groom")
             cur.execute("Insert into pet_activitycategory(pa_category,pa_type) values(%s,%s)", (pacategory,groom))
-            cur.execute("select pac_id,pa_type from pet_activitycategory where pa_category=%s", [pacategory])
-            allgrooms = cur.fetchall()
+
+            # call the procedure
+            cur.callproc('GetPacId', ['GROOMING'])
+            for results in cur.stored_results():
+                allgrooms = results.fetchall()
+
             mydb.commit()
             cur.close()
             return render_template("ShopOwner/addpetgroom.html",allgrooms=allgrooms)
