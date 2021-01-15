@@ -8,7 +8,7 @@ import random
 import string
 
 app = Flask(__name__)
-mydb = mysql.connect(host="localhost",user="root",passwd="vrashank",database="pet_boarding")
+mydb = mysql.connect(host="localhost",user="root",passwd="vrashank",database="pet_boarding_management")
 
 app.secret_key = "pet-boarding"
 
@@ -96,13 +96,14 @@ def addpetowner():
     if request.method == "POST":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
             cur = mydb.cursor(buffered=True)
-            #cur.execute("CREATE TABLE pet_owner(po_id int(11) primary key AUTO_INCREMENT,po_name varchar(50) NOT NULL,po_address varchar(150) NOT NULL,po_phone varchar(13) NOT NULL,po_email varchar(30) NOT NULL);")
+            #cur.execute("CREATE TABLE pet_owner(po_id int(11) primary key,po_name varchar(50) NOT NULL,po_address varchar(150) NOT NULL,po_phone varchar(13) NOT NULL,po_email varchar(30) NOT NULL);")
 
+            poid = request.form.get("poid")
             poname = request.form.get("poname")
             poemail = request.form.get("poemail")
             pophone = request.form.get("pophone")
             poaddress = request.form.get("poaddress")
-            cur.execute("Insert into pet_owner(po_name,po_email,po_phone,po_address) values(%s, %s, %s, %s)",(poname,poemail,pophone,poaddress))
+            cur.execute("Insert into pet_owner(po_id,po_name,po_email,po_phone,po_address) values(%s,%s, %s, %s, %s)",(poid,poname,poemail,pophone,poaddress))
             mydb.commit()
             cur.close()
 
@@ -124,7 +125,7 @@ def addpetdetails():
             result_str = ''.join(random.choice(letters) for i in range(5))
             cur = mydb.cursor(buffered=True)
 
-            #cur.execute("""CREATE TABLE pet_details (p_id varchar(5) primary key,p_name varchar(30),p_category varchar(20),p_breed varchar(20),p_age int(3),p_regdate date  DEFAULT current_timestamp(),p_regtime time  DEFAULT current_timestamp(),po_id int(11), foreign key(po_id) references pet_owner(po_id));""")
+            #cur.execute("""CREATE TABLE pet_details (p_id varchar(5) primary key,p_name varchar(30) NOT NULL,p_category varchar(20) NOT NULL,p_breed varchar(20) NOT NULL,p_age int(3) NOT NULL,p_regtime time  not null DEFAULT (current_time()),p_regdate date not null DEFAULT (current_date()),po_id int(11) NOT NULL, foreign key(po_id) references pet_owner(po_id));""")
 
             pname = request.form.get("pname")
             pcategory = request.form.get("pcategory")
@@ -171,8 +172,10 @@ def addpetfood():
             #cur.execute("""CREATE TABLE pet_activitycategory (pac_id int(11) primary key AUTO_INCREMENT,pa_category varchar(50) NOT NULL,pa_type varchar(50) NOT NULL);""")
 
             pacategory='EATING FOOD'
+
             food = request.form.get("food")
-            cur.execute("Insert into pet_activitycategory(pa_category,pa_type) values(%s,%s)", (pacategory,food))
+            pacid = request.form.get("pacid")
+            cur.execute("Insert into pet_activitycategory(pac_id,pa_category,pa_type) values(%s,%s,%s)", (pacid,pacategory,food))
 
             #call the procedure
             cur.callproc('GetPacId', ['EATING FOOD'])
@@ -206,8 +209,10 @@ def addpetgame():
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
             pacategory = 'PLAYING GAMES'
             cur=mydb.cursor(buffered=True)
+
             game = request.form.get("game")
-            cur.execute("Insert into pet_activitycategory(pa_category,pa_type) values(%s,%s)", (pacategory,game))
+            pacid = request.form.get("pacid")
+            cur.execute("Insert into pet_activitycategory(pac_id,pa_category,pa_type) values(%s,%s,%s)",(pacid, pacategory, game))
 
             # call the procedure
             cur.callproc('GetPacId', ['PLAYING GAMES'])
@@ -241,8 +246,10 @@ def addpetgroom():
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
             pacategory = 'GROOMING'
             cur=mydb.cursor(buffered=True)
+
             groom = request.form.get("groom")
-            cur.execute("Insert into pet_activitycategory(pa_category,pa_type) values(%s,%s)", (pacategory,groom))
+            pacid = request.form.get("pacid")
+            cur.execute("Insert into pet_activitycategory(pac_id,pa_category,pa_type) values(%s,%s,%s)",(pacid, pacategory, groom))
 
             # call the procedure
             cur.callproc('GetPacId', ['GROOMING'])
@@ -267,8 +274,9 @@ def addpetboard():
     if request.method=="POST":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
             cur=mydb.cursor(buffered=True)
-            #cur.execute("CREATE TABLE board_details (b_id int(11) primary key AUTO_INCREMENT,b_basiccost int(11) NOT NULL,b_totalcost int(11) DEFAULT NULL,b_nailcutcount int(11) DEFAULT 0,b_haircutcount int(11) DEFAULT 0,b_bathcount int(11) DEFAULT 0,b_foodcount int(11) NOT NULL,b_foodpref varchar(100) DEFAULT NULL,b_fromdate date NOT NULL,b_nodays int(11) DEFAULT NULL,b_tilldate date NOT NULL,p_id varchar(5) NOT NULL,b_healthcond varchar(100) DEFAULT NULL, foreign key(p_id) references pet_details(p_id))")
+            #cur.execute("CREATE TABLE board_details (b_id int(11) primary key,b_basiccost int(11) NOT NULL,b_totalcost int(11) DEFAULT NULL,b_nailcutcount int(11) DEFAULT 0,b_haircutcount int(11) DEFAULT 0,b_bathcount int(11) DEFAULT 0,b_foodcount int(11) NOT NULL,b_foodpref varchar(100) DEFAULT NULL,b_fromdate date NOT NULL,b_nodays int(11) DEFAULT NULL,b_tilldate date NOT NULL,p_id varchar(5) NOT NULL,b_healthcond varchar(100) DEFAULT NULL, foreign key(p_id) references pet_details(p_id));")
 
+            bid = request.form.get("bid")
             basiccost = request.form.get("basiccost")
             boardfromdate = request.form.get("boardfromdate")
             boardtilldate = request.form.get("boardtilldate")
@@ -298,7 +306,7 @@ def addpetboard():
             #cur.execute("create trigger calculate_total_cost before insert on board_details for each row set new.b_totalcost = new.b_totalcost + new.b_totalcost * 0.18")
 
             #Insert details into board_details
-            cur.execute("Insert into board_details(b_basiccost,b_totalcost,b_foodpref,b_nodays,b_fromdate,b_tilldate,b_healthcond,p_id,b_nailcutcount,b_haircutcount,b_bathcount,b_foodcount) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",(basiccost,totalcost,petfoodpref,days[0],fromdate,tilldate,pethealthcond,data[0],bnailcutcount,bhaircutcount,bbathcount,bfoodcount))
+            cur.execute("Insert into board_details(b_id,b_basiccost,b_totalcost,b_foodpref,b_nodays,b_fromdate,b_tilldate,b_healthcond,p_id,b_nailcutcount,b_haircutcount,b_bathcount,b_foodcount) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",(bid,basiccost,totalcost,petfoodpref,days[0],fromdate,tilldate,pethealthcond,data[0],bnailcutcount,bhaircutcount,bbathcount,bfoodcount))
 
             mydb.commit()
             cur.close()
@@ -403,7 +411,7 @@ def addactivity(id):
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
             cur = mydb.cursor(buffered=True)
 
-            #cur.execute("""CREATE TABLE pet_activity (pa_id int(11) primary key AUTO_INCREMENT,pac_id int(11) NOT NULL,pa_duration int(11) NOT NULL,pa_time time NOT NULL DEFAULT current_timestamp(),pa_date date NOT NULL DEFAULT current_timestamp(),p_health varchar(100) NOT NULL,p_id varchar(5),foreign key(p_id) references pet_details(p_id),foreign key(pac_id) references pet_activitycategory(pac_id))""")
+            #cur.execute("""CREATE TABLE pet_activity (pa_id int(11) primary key,pac_id int(11) NOT NULL,pa_duration int(11) NOT NULL,pa_time time DEFAULT (current_time()),pa_date date DEFAULT (current_date()),p_health varchar(100) NOT NULL,p_id varchar(5),foreign key(p_id) references pet_details(p_id),foreign key(pac_id) references pet_activitycategory(pac_id));""")
 
             #Get all Activities
             cur.execute("select pa_type from pet_activitycategory where pa_category='EATING FOOD'")
@@ -415,6 +423,8 @@ def addactivity(id):
             activities = food + groom + game
 
             #Get details from form
+
+            paid = request.form.get("paid")
             activitycategory = request.form.get("activitycategory")
             pactivity = request.form.get("pactivity")
             duration = request.form.get("duration")
@@ -427,7 +437,7 @@ def addactivity(id):
             print(pacid)
 
             #Add all details
-            cur.execute("insert into pet_activity(p_id,pa_duration,pac_id,p_health) values(%s,%s,%s,%s)",(id,duration,pacid[0][0],health))
+            cur.execute("insert into pet_activity(pa_id,p_id,pa_duration,pac_id,p_health) values(%s,%s,%s,%s,%s)",(paid,id,duration,pacid[0][0],health))
             mydb.commit()
             cur.close()
             return render_template("ShopOwner/addactivity.html",id=id,activities=activities)
