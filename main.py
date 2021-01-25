@@ -97,13 +97,21 @@ def addpetowner():
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
             cur = mydb.cursor(buffered=True)
             #cur.execute("CREATE TABLE pet_owner(po_id int(11) primary key,po_name varchar(50) NOT NULL,po_address varchar(150) NOT NULL,po_phone varchar(13) NOT NULL,po_email varchar(30) NOT NULL);")
+            #cur.execute("""CREATE TABLE petowner_phone(po_id int(11) ,po_phone varchar(13), primary key(po_id,po_phone));""")
 
             poid = request.form.get("poid")
             poname = request.form.get("poname")
             poemail = request.form.get("poemail")
-            pophone = request.form.get("pophone")
+            pophone1 = request.form.get("pophone1")
+            pophone2 = request.form.get("pophone2")
             poaddress = request.form.get("poaddress")
-            cur.execute("Insert into pet_owner(po_id,po_name,po_email,po_phone,po_address) values(%s,%s, %s, %s, %s)",(poid,poname,poemail,pophone,poaddress))
+
+            cur.execute("Insert into pet_owner(po_id,po_name,po_email,po_address) values(%s,%s,%s,%s)",(poid,poname,poemail,poaddress))
+            cur.execute("Insert into petowner_phone(po_id,po_phone) values(%s,%s)",(poid,pophone1))
+
+            if(pophone2!=""):
+                cur.execute("Insert into petowner_phone(po_id,po_phone) values(%s,%s)",(poid,pophone2))
+
             mydb.commit()
             cur.close()
 
@@ -322,33 +330,35 @@ def givecode():
     password = cookies.get("password")
     if(email == "vrashankrao@gmail.com" and password == "vrashank"):
         cur = mydb.cursor(buffered=True)
-        cur.execute("select p_id from pet_details order by p_regdate DESC,p_regtime DESC limit 1")
+        cur.execute("select p_id from board_details order by b_id DESC limit 1")
+        code = cur.fetchone()
+        cur.execute("select b_id from board_details order by b_id DESC limit 1")
         data = cur.fetchone()
         print(data)
         # Get Count of activities
-        cur.execute("select b_nailcutcount from board_details where p_id=%s", data)
+        cur.execute("select b_nailcutcount from board_details where b_id=%s", data)
         nailcutcount = cur.fetchone()
-        cur.execute("select b_haircutcount from board_details where p_id=%s", data)
+        cur.execute("select b_haircutcount from board_details where b_id=%s", data)
         haircutcount = cur.fetchone()
-        cur.execute("select b_foodcount from board_details where p_id=%s", data)
+        cur.execute("select b_foodcount from board_details where b_id=%s", data)
         foodcount = cur.fetchone()
-        cur.execute("select b_bathcount from board_details where p_id=%s", data)
+        cur.execute("select b_bathcount from board_details where b_id=%s", data)
         bathcount = cur.fetchone()
 
 
         #Get the No. of Days of Boarding
-        cur.execute("select b_nodays from board_details where p_id=%s",data)
+        cur.execute("select b_nodays from board_details where b_id=%s",data)
         days = cur.fetchone()
 
         #Get the Single dayBasic Cost of Boarding
-        cur.execute("select b_basiccost from board_details where p_id=%s", data)
+        cur.execute("select b_basiccost from board_details where b_id=%s", data)
         basiccost = cur.fetchone()
 
         #Get the Total days Basic Cost of Boarding
         totalbasiccost = basiccost[0]*days[0]
 
         #Get Total Boarding Cost
-        cur.execute("select b_totalcost from board_details where p_id=%s", data)
+        cur.execute("select b_totalcost from board_details where b_id=%s", data)
         totalcost = cur.fetchone()
         print(days[0])
         print(foodcount[0])
@@ -364,7 +374,7 @@ def givecode():
 
         mydb.commit()
         cur.close()
-        return render_template("ShopOwner/givecode.html", Code=data[0],FoodCount=totalfoodcount,FoodCost=food,HairCutCount=haircutcount[0],HairCutCost=haircut,NailCutCount=nailcutcount[0],NailCutCost=nailcut,BathCount=bathcount[0],BathCost=bath,TotalCost=totalcost[0],days=days[0],singleday=basiccost[0],basiccost=totalbasiccost)
+        return render_template("ShopOwner/givecode.html", Code=code[0],FoodCount=totalfoodcount,FoodCost=food,HairCutCount=haircutcount[0],HairCutCost=haircut,NailCutCount=nailcutcount[0],NailCutCost=nailcut,BathCount=bathcount[0],BathCost=bath,TotalCost=totalcost[0],days=days[0],singleday=basiccost[0],basiccost=totalbasiccost)
     else:
         return render_template("index.html")
 
@@ -494,11 +504,15 @@ def getboarddetails(id):
         boarddata = cur.fetchall()
         cur.execute("select b_nailcutcount,b_haircutcount,b_bathcount,b_foodcount from board_details where board_details.p_id=%s",[id])
         countdata = cur.fetchall()
-        cur.execute("select po_name,po_phone,po_email,po_address from pet_owner where po_id = (select po_id from pet_details where pet_details.p_id=%s)",[id])
+        cur.execute("select po_name,po_email,po_address from pet_owner where po_id = (select po_id from pet_details where pet_details.p_id=%s)",[id])
         petownerdata = cur.fetchall()
+        cur.execute("select po_phone from petowner_phone where po_id=(select po_id from pet_details where pet_details.p_id=%s)",[id])
+        phone = cur.fetchall()
+        count=len(phone)
+        print(phone)
         mydb.commit()
         cur.close()
-        return render_template("ShopOwner/getboarddetails.html",petdata=petdata,boarddata=boarddata,petownerdata=petownerdata,countdata=countdata,id=id)
+        return render_template("ShopOwner/getboarddetails.html",petdata=petdata,boarddata=boarddata,petownerdata=petownerdata,phone=phone,countdata=countdata,count=count,id=id)
     else:
         return render_template("index.html")
 
@@ -511,7 +525,7 @@ def getallpetowners():
     if request.method=="GET":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
             cur = mydb.cursor(buffered=True)
-            cur.execute("select po_id,po_name,po_phone,po_email from pet_owner order by po_id")
+            cur.execute("select po_id,po_name,po_email from pet_owner order by po_id")
             data = cur.fetchall()
             mydb.commit()
             cur.close()
@@ -611,13 +625,76 @@ def getapetowner():
     if request.method=="GET":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
             cur = mydb.cursor(buffered=True)
-            cur.execute("select po_id,po_name,po_phone,po_email from pet_owner order by po_id")
+            cur.execute("select po_id,po_name,po_email from pet_owner order by po_id")
             data = cur.fetchall()
             mydb.commit()
             cur.close()
             return render_template("ShopOwner/getapetowner.html",data=data)
         else:
             return render_template("index.html")
+
+
+#Route to get pets for board only
+@app.route("/getallthepets", methods=["GET","POST"])
+def getallthepets():
+    cookies = request.cookies
+    email = cookies.get("email")
+    password = cookies.get("password")
+    if request.method == "GET":
+        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
+            cur = mydb.cursor(buffered=True)
+            cur.execute("select p_id,p_name,p_category,DATE_FORMAT(p_regdate,'%d/%m/%Y'),po_name from pet_details,pet_owner where pet_details.po_id=pet_owner.po_id order by pet_details.po_id")
+            data = cur.fetchall()
+            cur.execute("select p_id from pet_details order by po_id")
+            id = cur.fetchall()
+            mydb.commit()
+            cur.close()
+            return render_template("ShopOwner/getallthepets.html", data=data, id=id)
+
+# Route to add a Boarding-Details of an Existing-Pet
+@app.route("/addboardonly/<id>", methods=["GET", "POST"])
+def addboardonly(id):
+    cookies = request.cookies
+    email = cookies.get("email")
+    password = cookies.get("password")
+    if request.method == "GET":
+        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
+            return render_template("ShopOwner/addboardonly.html",id=id)
+    if request.method == "POST":
+        if (email == "vrashankrao@gmail.com" and password == "vrashank"):
+            cur = mydb.cursor(buffered=True)
+
+            bid = request.form.get("bid")
+            basiccost = request.form.get("basiccost")
+            boardfromdate = request.form.get("boardfromdate")
+            boardtilldate = request.form.get("boardtilldate")
+            petfoodpref = request.form.get("petfoodpref")
+            pethealthcond = request.form.get("pethealthcond")
+            bnailcutcount = request.form.get("bnailcutcount")
+            bhaircutcount = request.form.get("bhaircutcount")
+            bbathcount = request.form.get("bbathcount")
+            bfoodcount = request.form.get("bfoodcount")
+
+            # Code to reverse date
+            fromdate = boardfromdate
+            tilldate = boardtilldate
+
+            # Code to Get No. of Days
+            cur.execute("SELECT DATEDIFF(%s, %s)", (tilldate, fromdate))
+            days = cur.fetchone()
+
+            # Calculate the Total Cost of Pet-Board
+            totalcost = int(days[0]) * int(basiccost) + (50 * int(bnailcutcount[0])) + (100 * int(bhaircutcount[0])) + int(days[0]) * (50 * int(bfoodcount[0])) + (30 * int(bbathcount[0]))
+
+            # Insert details into board_details
+            cur.execute("Insert into board_details(b_id,b_basiccost,b_totalcost,b_foodpref,b_nodays,b_fromdate,b_tilldate,b_healthcond,p_id,b_nailcutcount,b_haircutcount,b_bathcount,b_foodcount) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",(bid, basiccost, totalcost, petfoodpref, days[0], fromdate, tilldate, pethealthcond, id,bnailcutcount, bhaircutcount, bbathcount, bfoodcount))
+
+            mydb.commit()
+            cur.close()
+            return redirect('/givecode')
+    else:
+        return render_template("index.html")
+
 
 #Route to update a Pet-Owner
 @app.route("/updatepetowner/<id>", methods=["GET","POST"])
@@ -629,18 +706,17 @@ def updatepetowner(id):
     if request.method == "GET":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
             cur = mydb.cursor(buffered=True)
-            cur.execute("select po_name,po_phone,po_email,po_address from pet_owner where po_id=%s",[id])
+            cur.execute("select po_name,po_email,po_address from pet_owner where po_id=%s",[id])
             data = cur.fetchall()
+            cur.execute("select po_phone from petowner_phone where po_id=%s",[id])
+            phone = cur.fetchone()
             print(data[0])
             mydb.commit()
             cur.close()
-            return render_template("ShopOwner/updatepetowner.html",data=data[0],id=id)
+            return render_template("ShopOwner/updatepetowner.html",data=data[0],phone=phone[0],id=id)
     if request.method == "POST":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
             cur = mydb.cursor(buffered=True)
-
-            cur.execute("select po_name,po_phone,po_email,po_address from pet_owner where po_id=%s", [id])
-            data = cur.fetchall()
 
             poname = request.form.get("poname")
             pophone = request.form.get("pophone")
@@ -651,7 +727,7 @@ def updatepetowner(id):
             if(poname!=""):
                 cur.execute("update pet_owner set po_name=%s where po_id=%s",(poname,id))
             if(pophone!= ""):
-                cur.execute("update pet_owner set po_phone=%s where po_id=%s",(pophone, id))
+                cur.execute(" update petowner_phone set po_phone=%s where po_id=%s limit 1",(pophone, id))
             if(poemail != ""):
                 cur.execute("update pet_owner set po_email=%s where po_id=%s",(poemail, id))
             if(poaddress!= ""):

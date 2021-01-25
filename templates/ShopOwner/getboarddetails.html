@@ -110,15 +110,23 @@ color:#006600
 <center><u><h3 style="margin-top:5%;">PET-OWNER-DETAILS</h3></u></center>
 <table style="width:97%;margin-bottom:3%;margin-left:auto;margin-right:auto">
     <td><b><h4>Pet-Owner-Name</h4></b></td>
-     <td><b><h4>Phone No.</h4></b></td>
     <td><b><h4>Email Id</h4></b></td>
     <td><b><h4>Home Address</h4></b></td>
+    <td><b><h4>Phone No.1</h4></b></td>
+    <td><b><h4>Phone No.2 (if any)</h4></b></td>
 {% for row in petownerdata %}
 <tr>
 {% for cell in row %}
 <td><h5>{{cell}}</h5></td>
 {% endfor %}
+      <td><h5>{{phone[0][0]}}</h5></td>
+{% if count==2 %}
+     <td><h5>{{phone[1][0]}}</h5></td>
+{% else %}
+     <td><h5>-</h5></td>
+{% endif %}
 </tr>
+
 {% endfor %}
 </table>
 <center><a href="/getmypadetails/{{id}}"><button type="submit">Activity Details</button>

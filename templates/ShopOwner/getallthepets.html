@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Get all Pet-Owners</title>
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <title>Get Pet-Boarding Details</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -57,16 +57,18 @@ button:hover {
 </nav>
 
 <table style="width:97%;margin-left:auto;margin-right:auto">
-    <td><b><h3>PO-Id</h3></b></td>
-     <td><b><h3>PO-Name</h3></b></td>
-    <td><b><h3>PO-Email</h3></b></td>
+    <td><b><h3>Pet-Id</h3></b></td>
+     <td><b><h3>Pet-Name</h3></b></td>
+    <td><b><h3>Pet-Category</h3></b></td>
+    <td><b><h3>Reg-Date</h3></b></td>
+    <td><b><h3>Owner-Name</h3></b></td>
     <td><b><h3>Enter</h3></b></td>
 {% for row in data %}
 <tr>
 {% for cell in row %}
 <td><h5>{{cell}}</h5></td>
 {% endfor %}
-<td><a href="/addpetonly/{{row[0]}}"><button type="submit"><i class="fa fa-arrow-right"></i></button></a></td>
+<td><a href="/addboardonly/{{row[0]}}"><button type="submit"><i class="fa fa-arrow-right"></i></button></a></td>
 </tr>
 {% endfor %}
 </table>
