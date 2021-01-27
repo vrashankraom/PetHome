@@ -96,8 +96,8 @@ def addpetowner():
     if request.method == "POST":
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
             cur = mydb.cursor(buffered=True)
-            #cur.execute("CREATE TABLE pet_owner(po_id int(11) primary key,po_name varchar(50) NOT NULL,po_address varchar(150) NOT NULL,po_phone varchar(13) NOT NULL,po_email varchar(30) NOT NULL);")
-            #cur.execute("""CREATE TABLE petowner_phone(po_id int(11) ,po_phone varchar(13), primary key(po_id,po_phone));""")
+            #cur.execute("CREATE TABLE pet_owner(po_id int(11) primary key,po_name varchar(50) NOT NULL,po_address varchar(150) NOT NULL,po_email varchar(30) NOT NULL);")
+            #cur.execute("""CREATE TABLE petowner_phone(po_id int(11) ,po_phone varchar(13), primary key(po_id,po_phone), foreign key(po_id) references pet_owner(po_id));""")
 
             poid = request.form.get("poid")
             poname = request.form.get("poname")
@@ -177,7 +177,7 @@ def addpetfood():
         if (email == "vrashankrao@gmail.com" and password == "vrashank"):
             cur = mydb.cursor(buffered=True)
 
-            #cur.execute("""CREATE TABLE pet_activitycategory (pac_id int(11) primary key AUTO_INCREMENT,pa_category varchar(50) NOT NULL,pa_type varchar(50) NOT NULL);""")
+            #cur.execute("""CREATE TABLE pet_activitycategory (pac_id int(11) primary key,pa_category varchar(50) NOT NULL,pa_type varchar(50) NOT NULL);""")
 
             pacategory='EATING FOOD'
 
